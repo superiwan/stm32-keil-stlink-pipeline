@@ -35,7 +35,7 @@ With UART monitor:
 powershell -ExecutionPolicy Bypass -File "$env:CODEX_HOME\skills\stm32-keil-stlink-pipeline\scripts\run_pipeline.ps1" -Workspace "<workspace-path>" -WithMonitor
 ```
 
-## Modular Architecture (Plan 2)
+## Installer Behavior`r`n`r`n- `-Workspace` can be a project root or a parent directory.`r`n- Installer recursively finds `.uvprojx` if not present at workspace root.`r`n- Build/flash paths are derived from uvproj `OutputDirectory` + `OutputName`, not hard-coded `Objects\\Project.*`.`r`n`r`n## Modular Architecture (Plan 2)
 
 ### Probe Layer
 

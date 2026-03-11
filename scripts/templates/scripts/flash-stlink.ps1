@@ -1,48 +1,51 @@
-﻿$Root = Split-Path -Parent $PSScriptRoot
-. (Join-Path $Root 'config\dev-config.ps1')
+﻿$ErrorActionPreference = 'Stop'
+$Root = Split-Path -Parent $PSScriptRoot
+. (Join-Path $Root 'config\\dev-config.ps1')
 
 function Resolve-HexPath {
-    param(
-        [string]$PreferredPath,
-        [string]$ObjectsDir
-    )
+    param([string]$PreferredPath)
 
     if ($PreferredPath -and (Test-Path $PreferredPath)) {
         return (Resolve-Path $PreferredPath).Path
     }
 
-    $candidates = Get-ChildItem -Path $ObjectsDir -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.Extension -eq '.hex' } |
-        Sort-Object LastWriteTime -Descending
+    $searchDirs = @()
+    if ($PreferredPath) { $searchDirs += Split-Path -Parent $PreferredPath }
+    if ($BuildLog) { $searchDirs += Split-Path -Parent $BuildLog }
+    if ($ArtifactPath) { $searchDirs += Split-Path -Parent $ArtifactPath }
 
-    if ($candidates) {
-        return $candidates[0].FullName
+    foreach ($dir in ($searchDirs | Select-Object -Unique)) {
+        if (-not (Test-Path $dir)) { continue }
+        $candidates = Get-ChildItem -Path $dir -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -eq '.hex' } |
+            Sort-Object LastWriteTime -Descending
+        if ($candidates) { return $candidates[0].FullName }
     }
 
     return $null
 }
 
-if (-not (Test-Path $StlinkCli)) {
-    throw "ST-LINK_CLI not found: $StlinkCli"
-}
-
-$objectsDir = Join-Path $Root 'Objects'
-$resolvedHex = Resolve-HexPath -PreferredPath $HexPath -ObjectsDir $objectsDir
+$resolvedHex = Resolve-HexPath -PreferredPath $HexPath
 if (-not $resolvedHex) {
-    throw "HEX not found. Checked '$HexPath' and latest .hex in '$objectsDir'. Build first."
+    throw "HEX not found. Checked configured hex path and nearby output directories. Build first."
 }
 
-$cmd = @(
-    '-c', $StlinkInterface, 'UR',
-    '-P', $resolvedHex,
-    '-V',
-    '-Rst'
-)
+if (-not (Test-Path $StlinkCli)) {
+    throw "Flash tool not found: $StlinkCli"
+}
 
-Write-Host "[flash] $StlinkCli $($cmd -join ' ')"
-& $StlinkCli @cmd
+if ($StlinkCli -match 'STM32_Programmer_CLI.exe$') {
+    $cmd = @('-c', "port=SWD", '-d', $resolvedHex, '0x08000000', '-rst')
+    Write-Host "[flash] $StlinkCli $($cmd -join ' ')"
+    & $StlinkCli @cmd
+} else {
+    $cmd = @('-c', $StlinkInterface, 'UR', '-P', $resolvedHex, '-V', '-Rst')
+    Write-Host "[flash] $StlinkCli $($cmd -join ' ')"
+    & $StlinkCli @cmd
+}
+
 if ($LASTEXITCODE -ne 0) {
-    throw "ST-LINK_CLI flash failed with exit code $LASTEXITCODE"
+    throw "Flash failed with exit code $LASTEXITCODE"
 }
 
 Write-Host "[flash] OK: $resolvedHex"
