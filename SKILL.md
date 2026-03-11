@@ -104,6 +104,8 @@ Treat workflow as successful only if all expected markers appear:
 
 ## Guardrails
 
+- If sync reports `unsupported probe target`, read `references/mapping-playbook.md` before changing mappings.
+
 - Prefer auto-detected tool paths; only hardcode as fallback.
 - Do not trust uVision process exit code alone; parse `Objects/Project.build_log.htm` and fail only when `Error(s) > 0`.
 - If probe-reported family differs from project target, report it clearly before applying changes.
