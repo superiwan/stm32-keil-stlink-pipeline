@@ -10,7 +10,6 @@ if (-not (Test-Path $Workspace)) {
 }
 
 $Workspace = (Resolve-Path $Workspace).Path
-$SkillRoot = Split-Path -Parent $PSScriptRoot
 $TemplateRoot = Join-Path $PSScriptRoot 'templates'
 
 $uvprojx = Get-ChildItem -Path $Workspace -Filter *.uvprojx -File | Select-Object -First 1
@@ -25,10 +24,7 @@ try {
     if ($tn) { $targetName = [string]$tn }
 } catch {}
 
-$keilCandidates = @(
-    'C:\Keil5\UV4\UV4.exe',
-    'C:\Keil_v5\UV4\UV4.exe'
-)
+$keilCandidates = @('C:\Keil5\UV4\UV4.exe','C:\Keil_v5\UV4\UV4.exe')
 $stlinkCandidates = @(
     'C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe',
     'C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe'
@@ -42,7 +38,8 @@ if (-not $StlinkCli) { $StlinkCli = $stlinkCandidates[0] }
 
 New-Item -ItemType Directory -Force -Path (Join-Path $Workspace 'config'), (Join-Path $Workspace 'scripts'), (Join-Path $Workspace 'tools'), (Join-Path $Workspace 'logs'), (Join-Path $Workspace 'Objects') | Out-Null
 
-Copy-Item (Join-Path $TemplateRoot 'scripts\*.ps1') (Join-Path $Workspace 'scripts') -Force
+# Copy full script template tree (including lib/ and mappings/)
+Copy-Item (Join-Path $TemplateRoot 'scripts\*') (Join-Path $Workspace 'scripts') -Recurse -Force
 Copy-Item (Join-Path $TemplateRoot 'tools\uart_logger.py') (Join-Path $Workspace 'tools') -Force
 
 $configPath = Join-Path $Workspace 'config\dev-config.ps1'
