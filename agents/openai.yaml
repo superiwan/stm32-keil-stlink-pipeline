@@ -1,0 +1,4 @@
+interface:
+  display_name: "STM32 Keil ST-Link"
+  short_description: "Automate STM32 Keil ST-Link workflows"
+  default_prompt: "Use $stm32-keil-stlink-pipeline to set up and verify one-click build and flash in this workspace."
