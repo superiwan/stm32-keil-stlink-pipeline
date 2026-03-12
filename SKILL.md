@@ -109,4 +109,4 @@ Treat workflow as successful only if all expected markers appear:
 - Prefer auto-detected tool paths; only hardcode as fallback.
 - Do not trust uVision process exit code alone; parse `Objects/Project.build_log.htm` and fail only when `Error(s) > 0`.
 - If probe-reported family differs from project target, report it clearly before applying changes.
-- Keep workflow Windows-specific (`powershell`, `UV4.exe`, `ST-LINK_CLI.exe`).
+- Keep workflow Windows-specific (`powershell`, `UV4.exe`, `ST-LINK_CLI.exe`).`r`n- Target sync does not rewrite Debug/Utilities DLL fields to avoid cross-project GUI download breakage.`r`n- Build step will stop stale `UV4.exe` sessions before CLI build to reduce session carry-over issues.`r`n- Sync step normalizes `.uvprojx` to UTF-8 no BOM before mapping apply.

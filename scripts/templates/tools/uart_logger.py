@@ -13,14 +13,7 @@ except Exception as exc:
     sys.exit(2)
 
 
-AUTO_KEYWORDS = (
-    "daplink",
-    "cmsis-dap",
-    "mbed serial",
-    "jlink",
-    "stlink",
-    "usb serial",
-)
+AUTO_KEYWORDS = ("stlink","daplink","cmsis-dap","mbed serial","usb serial","ch340","ch34","cp210","silicon labs","ftdi","pl2303")
 
 
 def now_text(with_ts: bool) -> str:
@@ -110,3 +103,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

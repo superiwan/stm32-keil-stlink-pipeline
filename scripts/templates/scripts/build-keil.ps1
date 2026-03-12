@@ -4,7 +4,7 @@
 
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $PSScriptRoot
-. (Join-Path $Root 'config\\dev-config.ps1')
+. (Join-Path $Root 'config\dev-config.ps1')
 
 function Resolve-ArtifactPath {
     param([string]$PreferredPath)
@@ -46,6 +46,14 @@ function Resolve-BuildLogPath {
 
 if (-not (Test-Path $KeilUv4)) { throw "UV4.exe not found: $KeilUv4" }
 if (-not (Test-Path $ProjectFile)) { throw "Keil project not found: $ProjectFile" }
+
+# Avoid stale GUI session state carrying over across projects.
+$uv4 = Get-Process UV4 -ErrorAction SilentlyContinue
+if ($uv4) {
+    if (-not $Quiet) { Write-Host "[build] stopping stale UV4 sessions before CLI build..." }
+    $uv4 | Stop-Process -Force
+    Start-Sleep -Milliseconds 300
+}
 
 $args = @('-j0', '-b', $ProjectFile, '-t', $TargetName)
 if (-not $Quiet) { Write-Host "[build] $KeilUv4 $($args -join ' ')" }

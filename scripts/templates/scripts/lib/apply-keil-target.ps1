@@ -20,11 +20,12 @@
     $text = [regex]::Replace($text, '<FlashDriverDll>.*?</FlashDriverDll>', "<FlashDriverDll>$($Mapping.FlashDriverDll)</FlashDriverDll>")
     $text = [regex]::Replace($text, '<RegisterFile>.*?</RegisterFile>', "<RegisterFile>$($Mapping.RegisterFile)</RegisterFile>")
     $text = [regex]::Replace($text, '<SFDFile>.*?</SFDFile>', "<SFDFile>$($Mapping.SFDFile)</SFDFile>")
-    $text = [regex]::Replace($text, '<SimDllName>.*?</SimDllName>', "<SimDllName>$($Mapping.SimDllName)</SimDllName>")
-    $text = [regex]::Replace($text, '<SimDlgDllArguments>.*?</SimDlgDllArguments>', "<SimDlgDllArguments>$($Mapping.SimDlgDllArguments)</SimDlgDllArguments>")
-    $text = [regex]::Replace($text, '<TargetDllName>.*?</TargetDllName>', "<TargetDllName>$($Mapping.TargetDllName)</TargetDllName>")
-    $text = [regex]::Replace($text, '<TargetDlgDllArguments>.*?</TargetDlgDllArguments>', "<TargetDlgDllArguments>$($Mapping.TargetDlgDllArguments)</TargetDlgDllArguments>")
-    $text = [regex]::Replace($text, '<AdsCpuType>.*?</AdsCpuType>', "<AdsCpuType>$($Mapping.AdsCpuType)</AdsCpuType>")
+
+    # Intentionally do NOT rewrite Debug/Utilities DLL fields here.
+    # These settings are environment-sensitive and can break GUI download/debug when switching projects.
+    if ($Mapping.ContainsKey('AdsCpuType') -and $Mapping.AdsCpuType) {
+        $text = [regex]::Replace($text, '<AdsCpuType>.*?</AdsCpuType>', "<AdsCpuType>$($Mapping.AdsCpuType)</AdsCpuType>")
+    }
 
     if (-not $Force -and $text -eq $original) {
         return [pscustomobject]@{ Changed = $false }
